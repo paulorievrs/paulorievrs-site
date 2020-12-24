@@ -11,19 +11,24 @@ class CustomAuth
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
         $path = $request->path();
-        if(($path === "login" || $path === "cadastro") && (Session::get('user'))) {
-            return redirect('/admin');
+
+        $sessao = Session::get('user');
+
+
+        if(($path === "login" || $path === "cadastro") && ($sessao)) {
+            return view('admin');
         }
-//        if(($path !== 'login' || $path !== 'cadastro') && Session::get('user') === null) {
-//            return redirect('/login');
-//        }
+
+        if(($path !== "login" || $path !== "cadastro") && !($sessao)) {
+            return view('login');
+        }
 
         return $next($request);
     }
