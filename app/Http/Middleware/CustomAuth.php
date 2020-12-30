@@ -8,28 +8,15 @@ use Illuminate\Support\Facades\Session;
 
 class CustomAuth
 {
-    /**
+     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-        $path = $request->path();
-
-        $sessao = Session::get('user');
-
-
-        if(($path === "login" || $path === "cadastro") && ($sessao)) {
-            return view('admin');
-        }
-
-        if(($path !== "login" || $path !== "cadastro") && !($sessao)) {
-            return view('login');
-        }
-
         return $next($request);
     }
 
