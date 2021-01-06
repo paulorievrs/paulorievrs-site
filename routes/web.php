@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
@@ -22,7 +23,7 @@ use App\Http\Controllers\UserAuth;
 
 Route::get('/', [ PostController::class, 'home']);
 
-Route::get('/login', function () {
+Route::get('/entrar', function () {
     return view('login');
 });
 
@@ -35,7 +36,6 @@ Route::get('/postagens/{id}', [ PostController::class, 'show']);
 Route::get('/profile', function () {
     return view('profile');
 });
-
 
 
 Route::get('/cadastro', [UserController::class, 'create']);
@@ -77,7 +77,8 @@ Route::group(['middleware' => 'web'], function() {
     Route::get('/giveaways', [ GiveawayController::class, 'index' ]);
 
 
+});
 
+Auth::routes();
 
-
-});;
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

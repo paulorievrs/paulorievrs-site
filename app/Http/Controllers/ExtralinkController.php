@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use mysql_xdevapi\Exception;
 
 class ExtralinkController extends Controller
 {
@@ -52,7 +51,7 @@ class ExtralinkController extends Controller
 
             $response = "Cadastrado com sucesso. Nome: " . $name;
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response = "Erro ao cadastrar. Nome: " . $name;
         }
 

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -37,62 +39,73 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
+        $this->validate(request(), [
+            'name' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed'
+        ]);
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+//        $user->password_confirmation = Hash::make($request->confirmPassword);
+        $user->save();
+//        $adminCodeEnv = env('ADMINCODE', '123');
 
-        $adminCodeEnv = env('ADMINCODE', '123');
+//        $name = $request->name;
+//        $email = $request->email;
+//        $password = $request->password;
+//        $confirmPassword = $request->confirmPassword;
+//        $adminCode = $request->adminCode;
 
-        $name = $request->name;
-        $email = $request->email;
-        $password = $request->password;
-        $confirmPassword = $request->confirmPassword;
-        $adminCode = $request->adminCode;
-
-         $dados = [
-            $name,
-            $email,
-            $password,
-            $confirmPassword,
-            $adminCode
-        ];
-
-        foreach($dados as $dado) {
-            if($dado === null || strlen($dado) === 0) {
-                $response = 'Preencha todos os dados.';
-                return redirect('cadastro')->with('response', $response);
-            }
-        }
-
-        if($adminCode != $adminCodeEnv) {
-            $response = 'Código de administrador errado.';
-            return redirect('cadastro')->with('response', $response);
-        }
-
-        if($password !== $confirmPassword) {
-            $response = 'Senhas não são iguais.';
-            return redirect('cadastro')->with('response', $response);
-        }
-
-        try {
-
-            DB::table('users')->insert([
-                'name' => $name,
-                'email' => $email,
-                'password' => $password
-            ]);
-            $response = 'Cadastrado com sucesso.';
-        } catch (\Exception $e) {
-            if($e->getCode() === '23000') {
-                $response = 'Esse e-mail já existe na nossa base de dados. Por favor, faça o login.';
-            } else {
-                $response = 'Erro. Por favor, contate um administrador.';
-            }
-
-        }
+//         $dados = [
+//            $name,
+//            $email,
+//            $password,
+//            $confirmPassword,
+//            $adminCode
+//        ];
+//
+//        foreach($dados as $dado) {
+//            if($dado === null || strlen($dado) === 0) {
+//                $response = 'Preencha todos os dados.';
+//                return redirect('cadastro')->with('response', $response);
+//            }
+//        }
+//
+//        if($adminCode != $adminCodeEnv) {
+//            $response = 'Código de administrador errado.';
+//            return redirect('cadastro')->with('response', $response);
+//        }
+//
+//        if($password !== $confirmPassword) {
+//            $response = 'Senhas não são iguais.';
+//            return redirect('cadastro')->with('response', $response);
+//        }
+//
+//        try {
+//
+//            DB::table('users')->insert([
+//                'name' => $name,
+//                'email' => $email,
+//                'password' => $password
+//            ]);
+//            $response = 'Cadastrado com sucesso.';
+//        } catch (\Exception $e) {
+//            if($e->getCode() === '23000') {
+//                $response = 'Esse e-mail já existe na nossa base de dados. Por favor, faça o login.';
+//            } else {
+//                $response = 'Erro. Por favor, contate um administrador.';
+//            }
+//
+//        }
 
 
-        return redirect('cadastro')->with('response', $response);
+//        return redirect('cadastro');
 
     }
 
