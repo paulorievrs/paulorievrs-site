@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Imagelinks;
+use App\Models\Post;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -49,24 +51,20 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $postName = $request->postName;
-        $postCaption = $request->postCaption;
-        $postDate = $request->postDate;
-        $youtube = $request->youtube;
-        $extraData = $request->extraData;
 
         try {
 
-            DB::table('posts')->insert([
-                'postName' => $postName,
-                'postCaption' => $postCaption,
-                'postDate' => $postDate,
-                'youtube' => $youtube,
-                'extraData' => $extraData
-            ]);
-            $response = 'Cadastrado com sucesso. Nome: ' . $postName;
+            $post = new Post();
+            $post->postName = $request->postName;
+            $post->postCaption = $request->postCaption;
+            $post->postDate = $request->postDate;
+            $post->youtube = $request->youtube;
+            $post->extraData = $request->extraData;
+            $post->save();
+
+            $response = 'Cadastrado com sucesso. Nome: ' . $request->postName;
         } catch (\Exception $e) {
-            $response = 'Erro ao cadastrar. Nome: ' . $postName;
+            $response = 'Erro ao cadastrar. Nome: ' . $request->postName;
         }
 
         return redirect('posts')->with('response', $response);
@@ -82,15 +80,15 @@ class PostController extends Controller
     public function show(int $id)
     {
 
-            $imagelinks = DB::table('imagelinks')->select('*')->where('postId', $id)->leftJoin('posts', 'imagelinks.postId', '=', 'posts.id')->get();
-            $extralinks = DB::table('extralinks')->select('*')->where('postId', $id)->get();
+//        $imagelinks = DB::table('imagelinks')->select('*')->where('postId', $id)->leftJoin('posts', 'imagelinks.postId', '=', 'posts.id')->get();
+        $extralinks = DB::table('extralinks')->select('*')->where('postId', $id)->get();
+        $post = Post::find($id);
+        $imagelinks = $post->imagelinks;
+        return view('postDetail', [
+            'imagelinks' => $imagelinks,
+            'extralinks' => $extralinks
 
-
-            return view('postDetail', [
-                'imagelinks' => $imagelinks,
-                'extralinks' => $extralinks
-
-            ]);
+        ]);
 
 
     }
@@ -120,23 +118,15 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $postName = $request->postName;
-        $postCaption = $request->postCaption;
-        $postDate = $request->postDate;
-        $youtube = $request->youtube;
-        $extraData = $request->extraData;
-
         try {
 
-            DB::table('posts')
-                ->where('id', $id)
-                ->update([
-                'postName' => $postName,
-                'postCaption' => $postCaption,
-                'postDate' => $postDate,
-                'youtube' => $youtube,
-                'extraData' => $extraData
-            ]);
+            $post = Post::find($id);
+            $post->postName = $request->postName;
+            $post->postCaption = $request->postCaption;
+            $post->postDate = $request->postDate;
+            $post->youtube = $request->youtube;
+            $post->extraData = $request->extraData;
+            $post->save();
             $response = 'Alterado com sucesso. ID: ' . $id;
         } catch (\Exception $e) {
             $response = 'Erro ao alterar. ID: ' . $id;
@@ -154,9 +144,8 @@ class PostController extends Controller
     {
         try {
 
-            DB::table('posts')
-                ->where('id', $id)
-                ->delete();
+            $post = Post::find($id);
+            $post->delete();
             $response = 'Deletado com sucesso. ID: ' . $id;
         } catch (\Exception $e) {
             $response = 'Erro ao deletar... ID: ' . $id;
@@ -165,9 +154,12 @@ class PostController extends Controller
         return redirect('posts')->with('response', $response);
     }
 
-    public function home() {
+    public function home()
+    {
         $imagelinks = DB::table('imagelinks')->select('*')->orderBy('id', 'desc')->where('imageindex', 0)->paginate(6);
 
         return view('index', ['imagelinks' => $imagelinks]);
     }
+
+
 }

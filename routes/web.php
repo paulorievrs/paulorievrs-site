@@ -33,23 +33,13 @@ Route::get('sendbasicemail','App\Http\Controllers\MailController@index');
 Route::get('/postagens', [ PostController::class, 'postagens']);
 Route::get('/postagens/{id}', [ PostController::class, 'show']);
 
-Route::get('/profile', function () {
-    return view('profile');
-});
 
-
-Route::get('/cadastro', [UserController::class, 'create']);
 Route::post('/user', [UserController::class, 'store']);
 
-Route::post('/logar', [UserAuth::class, 'login']);
-
-Route::group(['middleware' => 'web'], function() {
-
+Route::group(['middleware' => ['auth']], function() {
     Route::get('/admin', function () {
         return view('admin');
     });
-
-    Route::get('/logout', [ UserAuth::class, 'logout']);
 
     Route::get('/posts', [ PostController::class, 'index']);
     Route::get('/createposts', [ PostController::class, 'create']);
@@ -75,8 +65,6 @@ Route::group(['middleware' => 'web'], function() {
     Route::get('/creategiveaways', [ GiveawayController::class, 'create' ]);
     Route::post('/giveaways', [ GiveawayController::class, 'store' ]);
     Route::get('/giveaways', [ GiveawayController::class, 'index' ]);
-
-
 });
 
 Auth::routes();

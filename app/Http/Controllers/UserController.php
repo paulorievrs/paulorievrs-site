@@ -43,6 +43,11 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+
+        if($request->adminCode !== 'vilagger') {
+            return redirect('/register')->withErrors('adminCode', 'Erro no código de administrador');
+        }
+
         $this->validate(request(), [
             'name' => 'required',
             'email' => 'required|email',
@@ -52,61 +57,10 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
-//        $user->password_confirmation = Hash::make($request->confirmPassword);
+        $user->remember_token = $request->remember_token;
         $user->save();
-//        $adminCodeEnv = env('ADMINCODE', '123');
 
-//        $name = $request->name;
-//        $email = $request->email;
-//        $password = $request->password;
-//        $confirmPassword = $request->confirmPassword;
-//        $adminCode = $request->adminCode;
-
-//         $dados = [
-//            $name,
-//            $email,
-//            $password,
-//            $confirmPassword,
-//            $adminCode
-//        ];
-//
-//        foreach($dados as $dado) {
-//            if($dado === null || strlen($dado) === 0) {
-//                $response = 'Preencha todos os dados.';
-//                return redirect('cadastro')->with('response', $response);
-//            }
-//        }
-//
-//        if($adminCode != $adminCodeEnv) {
-//            $response = 'Código de administrador errado.';
-//            return redirect('cadastro')->with('response', $response);
-//        }
-//
-//        if($password !== $confirmPassword) {
-//            $response = 'Senhas não são iguais.';
-//            return redirect('cadastro')->with('response', $response);
-//        }
-//
-//        try {
-//
-//            DB::table('users')->insert([
-//                'name' => $name,
-//                'email' => $email,
-//                'password' => $password
-//            ]);
-//            $response = 'Cadastrado com sucesso.';
-//        } catch (\Exception $e) {
-//            if($e->getCode() === '23000') {
-//                $response = 'Esse e-mail já existe na nossa base de dados. Por favor, faça o login.';
-//            } else {
-//                $response = 'Erro. Por favor, contate um administrador.';
-//            }
-//
-//        }
-
-
-//        return redirect('cadastro');
-
+        return true;
     }
 
     /**
@@ -155,4 +109,5 @@ class UserController extends Controller
     {
         //
     }
+
 }

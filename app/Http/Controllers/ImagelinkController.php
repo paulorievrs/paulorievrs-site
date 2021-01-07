@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Imagelinks;
+use App\Models\Post;
+use Faker\Provider\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +30,7 @@ class ImagelinkController extends Controller
      */
     public function create()
     {
-        $posts = DB::table('posts')->select('*')->orderBy('id','desc')->paginate(10);
+        $posts = Post::all()->sortByDesc('id')->splice(0,10);
         return view('createimagelinks', ['posts' => $posts]);
     }
 
@@ -38,19 +41,17 @@ class ImagelinkController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $imageLink = $request->imagelink;
-            $postId = $request->postId;
-            $imageIndex = $request->imageIndex;
 
-            DB::table('imagelinks')->insert([
-                'imageLink' => $imageLink,
-                'postId' => $postId,
-                'imageIndex' => $imageIndex
-            ]);
-            $response = 'Cadastrado com sucesso. Link: ' . $imageLink;
+        try {
+            $imagelink = new Imagelinks();
+            $imagelink->imageLink = $request->imagelink;
+            $imagelink->postId = $request->postId;
+            $imagelink->imageIndex = $request->imageIndex;
+            $imagelink->save();
+
+            $response = 'Cadastrado com sucesso. Link: ' . $imagelink->imagelink;
         } catch (\Exception $e) {
-            $response = 'Erro ao cadastrar. Link: ' . $imageLink;
+            $response = 'Erro ao cadastrar. Link: ' . $e->getMessage();
         }
 
         return redirect('imagelinks')->with('response', $response);
@@ -103,19 +104,13 @@ class ImagelinkController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $imageLink = $request->imagelink;
-        $postId = $request->postId;
-        $imageIndex = $request->imageIndex;
-
         try {
 
-            DB::table('imagelinks')
-                ->where('id', $id)
-                ->update([
-                'imageLink' => $imageLink,
-                'postId' => $postId,
-                'imageIndex' => $imageIndex
-                ]);
+            $imagelink = Imagelinks::find($id);
+            $imagelink->imageLink = $request->imagelink;
+            $imagelink->postId = $request->postId;
+            $imagelink->imageIndex = $request->imageIndex;
+            $imagelink->save();
 
             $response = 'Alterado com sucesso. ID: ' . $id;
 
@@ -134,10 +129,9 @@ class ImagelinkController extends Controller
     public function destroy($id)
     {
         try {
+            $imagelink = Imagelinks::find($id);
+            $imagelink->delete();
 
-            DB::table('imagelinks')
-                ->where('id', $id)
-                ->delete();
             $response = 'Deletado com sucesso, ID: ' . $id;
         } catch (\Exception $e) {
             $response = 'Erro ao deletar... ID: ' . $id;

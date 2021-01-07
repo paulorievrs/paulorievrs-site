@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Extralink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -39,20 +40,17 @@ class ExtralinkController extends Controller
     public function store(Request $request)
     {
         try {
-            $name = $request->name;
-            $link = $request->link;
-            $postId = $request->postId;
+            $extralink = new Extralink();
+            $extralink->name = $request->name;
+            $extralink->link = $request->link;
+            $extralink->postId = $request->postId;
+            $extralink->save();
 
-            DB::table('extralinks')->insert([
-                'name' => $name,
-                'postId' => $postId,
-                'link' => $link
-            ]);
 
-            $response = "Cadastrado com sucesso. Nome: " . $name;
+            $response = "Cadastrado com sucesso. Nome: " . $request->name;
 
         } catch (\Exception $e) {
-            $response = "Erro ao cadastrar. Nome: " . $name;
+            $response = "Erro ao cadastrar. Nome: " . $request->name;
         }
 
         return redirect('extralinks')->with('response', $response);
@@ -106,17 +104,13 @@ class ExtralinkController extends Controller
     {
         try {
 
-            $name = $request->name;
-            $link = $request->link;
-            $postId = $request->postId;
+            $extralink = Extralink::find($id);
 
-            DB::table('extralinks')
-                ->where('id', $id)
-                ->insert([
-                'name' => $name,
-                'postId' => $postId,
-                'link' => $link
-            ]);
+            $extralink->name = $request->name;
+            $extralink->link = $request->link;
+            $extralink->postId = $request->postId;
+            $extralink->save();
+
             $response = 'Alterado com sucesso. ID ' . $id;
         } catch (\Exception $e) {
             $response = 'Erro ao alterar. ID ' . $id;
@@ -134,10 +128,9 @@ class ExtralinkController extends Controller
     public function destroy($id)
     {
         try {
+            $extralink = Extralink::find($id);
+            $extralink->delete();
 
-            DB::table('extralinks')
-                ->where('id', $id)
-                ->delete();
             $response = 'Deletado com sucesso com o ID ' . $id;
         } catch (\Exception $e) {
             $response = 'Erro ao deletar... o ID ' . $id;
